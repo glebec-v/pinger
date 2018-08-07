@@ -1,4 +1,6 @@
 .idea/
 vendor/
+pinger-dist/
 ping.log
 config.cfg
+pinger-dist.tar.gz

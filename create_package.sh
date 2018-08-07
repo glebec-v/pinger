@@ -24,7 +24,7 @@ cd "${PACKAGE_DIR}"
 git clone "http://${REPOSITORY_HOST}/${project_name}"
 cd "${PACKAGE_DIR}/${project_name}"
 git checkout ${pinger_branch}
-mv ./installer.sh ../
+mv ./install.sh ../
 
 # установка php-пакетов
 composer install
