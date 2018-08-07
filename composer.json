@@ -12,5 +12,9 @@
     "psr-4": {
       "GlebecV\\": "src/"
     }
+  },
+  "require": {
+    "monolog/monolog": "^1.23",
+    "doctrine/dbal": "^2.8"
   }
 }

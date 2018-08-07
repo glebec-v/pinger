@@ -2,14 +2,54 @@
 
 namespace GlebecV;
 
+use GlebecV\DTO\StationCollection;
+use Monolog\Logger;
+
 class Pinger
 {
     private const TIMEOUT = 2;
-    private const COUNT_ATTEMPTS = 1;
+    private const COUNT = 1;
+    private const COUNT_ATTEMTS = 3;
 
-    public function ping(string $host)
+    private $ipCollection;
+    private $logger;
+
+    public function __construct(RepositoryInterface $ipCollection, Logger $logger)
     {
-        exec(sprintf('ping -c %d -W %d %s', self::COUNT_ATTEMPTS, self::TIMEOUT, escapeshellarg($host)), $res, $rval);
-        return $rval === 0;
+        $this->ipCollection = $ipCollection;
+        $this->logger       = $logger;
+    }
+
+    public function executePings()
+    {
+        $collection = $this->ipCollection->getIpCollection();
+        foreach ($collection as $counter => $item) {
+            /** @var StationCollection $item */
+            $result = $this->ping($item->ip);
+            if ($result['ok']) {
+                $this->logger->info((string)$counter, [$item->toArray(), $result['res'], $result['attempts']]);
+            } else {
+                $this->logger->error((string)$counter, [$item->toArray(), $result['attempts']]);
+            }
+
+        }
+    }
+
+    private function ping(string $host)
+    {
+        $counter = 0;
+        do {
+            $counter++;
+            exec(sprintf('ping -c %d -W %d %s', self::COUNT, self::TIMEOUT, escapeshellarg($host)), $res, $rval);
+            if (self::COUNT_ATTEMTS === $counter) {
+                break;
+            }
+        } while (0 !== $rval);
+
+        return [
+            'ok'       => $rval === 0,
+            'res'      => !empty($res[1] ?? '') ? $res[1] : '',
+            'attempts' => $counter
+        ];
     }
 }
