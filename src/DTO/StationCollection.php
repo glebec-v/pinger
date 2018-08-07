@@ -10,6 +10,12 @@ class StationCollection implements ItemInterface
     public $serial;
     public $name;
 
+    /**
+     * StationCollection constructor.
+     * @param string $ip
+     * @param string $serial
+     * @param string $name
+     */
     public function __construct(string $ip, string $serial, string $name)
     {
         $this->ip = $ip;
@@ -17,6 +23,9 @@ class StationCollection implements ItemInterface
         $this->name = $name;
     }
 
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         return [

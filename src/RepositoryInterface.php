@@ -5,5 +5,8 @@ namespace GlebecV;
 
 interface RepositoryInterface
 {
-    public function getIpCollection();
+    /**
+     * @return array
+     */
+    public function getIpCollection(): array;
 }

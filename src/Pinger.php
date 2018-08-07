@@ -14,12 +14,20 @@ class Pinger
     private $ipCollection;
     private $logger;
 
+    /**
+     * Pinger constructor.
+     * @param RepositoryInterface $ipCollection
+     * @param Logger $logger
+     */
     public function __construct(RepositoryInterface $ipCollection, Logger $logger)
     {
         $this->ipCollection = $ipCollection;
         $this->logger       = $logger;
     }
 
+    /**
+     *
+     */
     public function executePings()
     {
         $collection = $this->ipCollection->getIpCollection();
@@ -27,14 +35,18 @@ class Pinger
             /** @var StationCollection $item */
             $result = $this->ping($item->ip);
             if ($result['ok']) {
-                $this->logger->info((string)$counter, [$item->toArray(), $result['res'], $result['attempts']]);
+                $this->logger->info((string)$counter, [$item->toArray(), $result['res'], 'attempts' => $result['attempts']]);
             } else {
-                $this->logger->error((string)$counter, [$item->toArray(), $result['attempts']]);
+                $this->logger->error((string)$counter, [$item->toArray(), 'attempts' => $result['attempts']]);
             }
 
         }
     }
 
+    /**
+     * @param string $host
+     * @return array
+     */
     private function ping(string $host)
     {
         $counter = 0;
