@@ -1,3 +1,4 @@
 .idea/
 vendor/
 ping.log
+config.cfg

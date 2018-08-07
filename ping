@@ -3,11 +3,11 @@
 
 include __DIR__.'/vendor/autoload.php';
 
-//$repo = new GlebecV\Repository\SimpleDemoRepo();
-$repo = new GlebecV\Repository\NmsDbRepository();
 $logger = new \Monolog\Logger('ping');
 
 try {
+    //$repo = new GlebecV\Repository\SimpleDemoRepo();
+    $repo = new GlebecV\Repository\NmsDbRepository();
     $logger->pushHandler(new \Monolog\Handler\StreamHandler('ping.log', \Monolog\Logger::INFO));
     $pinger = new \GlebecV\Pinger($repo, $logger);
 
