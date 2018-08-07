@@ -1,0 +1,16 @@
+{
+  "name": "glebec-v/pinger",
+  "description": "simple pinger",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gleb Vorotilov",
+      "email": "gvorotilov@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "GlebecV\\": "src/"
+    }
+  }
+}
