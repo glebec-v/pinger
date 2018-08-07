@@ -11,7 +11,7 @@ try {
     $logger->pushHandler(new \Monolog\Handler\StreamHandler('ping.log', \Monolog\Logger::INFO));
     $pinger = new \GlebecV\Pinger($repo, $logger);
 
-    $pinger->executePings();
+    $pinger->permanentExecutePings();
 } catch (\Exception $exception) {
     echo $exception->getTraceAsString();
 }

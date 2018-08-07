@@ -11,26 +11,51 @@ class Pinger
     private const COUNT = 1;
     private const COUNT_ATTEMTS = 3;
 
-    private $ipCollection;
+    private $ipRepository;
     private $logger;
 
     /**
      * Pinger constructor.
-     * @param RepositoryInterface $ipCollection
+     * @param RepositoryInterface $ipRepository
      * @param Logger $logger
      */
-    public function __construct(RepositoryInterface $ipCollection, Logger $logger)
+    public function __construct(RepositoryInterface $ipRepository, Logger $logger)
     {
-        $this->ipCollection = $ipCollection;
+        $this->ipRepository = $ipRepository;
         $this->logger       = $logger;
     }
 
     /**
-     *
+     * ping operation for every station
+     */
+    public function permanentExecutePings()
+    {
+        if ($this->ipRepository instanceof UpStationRepository) {
+            while(true) {
+                $collection = $this->ipRepository->getIpCollection();
+                foreach ($collection as $counter => $item) {
+                    /** @var StationCollection $item */
+                    if ($this->ipRepository->isUp($item->serial)) {
+                        $result = $this->ping($item->ip);
+                        if ($result['ok']) {
+                            $this->logger->info((string)$counter, ['target' => $item->toArray(), 'result' => $result['res'], 'attempts' => $result['attempts']]);
+                        } else {
+                            $this->logger->error((string)$counter, ['target' => $item->toArray(), 'attempts' => $result['attempts']]);
+                        }
+                    } else {
+                        $this->logger->warning((string)$counter.' DOWN', ['target' => $item->toArray()]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * common ping operation
      */
     public function executePings()
     {
-        $collection = $this->ipCollection->getIpCollection();
+        $collection = $this->ipRepository->getIpCollection();
         foreach ($collection as $counter => $item) {
             /** @var StationCollection $item */
             $result = $this->ping($item->ip);
@@ -39,7 +64,6 @@ class Pinger
             } else {
                 $this->logger->error((string)$counter, ['target' => $item->toArray(), 'attempts' => $result['attempts']]);
             }
-
         }
     }
 
