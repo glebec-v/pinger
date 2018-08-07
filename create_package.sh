@@ -24,6 +24,7 @@ cd "${PACKAGE_DIR}"
 git clone "http://${REPOSITORY_HOST}/${project_name}"
 cd "${PACKAGE_DIR}/${project_name}"
 git checkout ${pinger_branch}
+mv ./installer.sh ../
 
 # установка php-пакетов
 composer install
@@ -34,7 +35,6 @@ composer dump-autoload --optimize
 # удаление лишнего
 echo "Cleaning pinger-dist folder"
 rm -rf "${PACKAGE_DIR}/${project_name}/.git"
-rm -rf "${PACKAGE_DIR}/${project_name}/install"
 rm -rf "${PACKAGE_DIR}/${project_name}/config.cfg"
 rm -fv "${PACKAGE_DIR}/${project_name}/.gitignore"
 rm -fv "${PACKAGE_DIR}/${project_name}/composer.json"

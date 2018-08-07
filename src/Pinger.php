@@ -35,9 +35,9 @@ class Pinger
             /** @var StationCollection $item */
             $result = $this->ping($item->ip);
             if ($result['ok']) {
-                $this->logger->info((string)$counter, [$item->toArray(), $result['res'], 'attempts' => $result['attempts']]);
+                $this->logger->info((string)$counter, ['target' => $item->toArray(), 'result' => $result['res'], 'attempts' => $result['attempts']]);
             } else {
-                $this->logger->error((string)$counter, [$item->toArray(), 'attempts' => $result['attempts']]);
+                $this->logger->error((string)$counter, ['target' => $item->toArray(), 'attempts' => $result['attempts']]);
             }
 
         }
