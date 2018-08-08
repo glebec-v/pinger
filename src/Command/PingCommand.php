@@ -2,9 +2,10 @@
 
 namespace GlebecV\Command;
 
+use GlebecV\DTO\PingerCreationRequest;
+use GlebecV\Model\Pinger;
+use GlebecV\RepositoryInterface;
 
-use GlebecV\Pinger;
-use GlebecV\Repository\SimpleDemoRepo;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Symfony\Component\Console\Command\Command;
@@ -14,6 +15,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PingCommand extends Command
 {
+    private $repository;
+
+    public function __construct(RepositoryInterface $repository, ?string $name = null)
+    {
+        $this->repository = $repository;
+        parent::__construct($name);
+    }
+
     /**
      * command configuration
      * up to https://symfony.com/doc/current/console.html
@@ -66,24 +75,41 @@ class PingCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $pinger = $this->createPinger($input);
-        $permanent = $input->getOption('permanent');
+        try {
+            $pinger = $this->createPinger($input);
+            $permanent = $input->getOption('permanent');
 
-        if ($permanent) {
-            $pinger->permanentExecutePings();
-        } else {
-            $pinger->executePings();
+            if ($permanent) {
+                $pinger->permanentExecutePings();
+            } else {
+                $pinger->executePingsOnce();
+            }
+        } catch (\Exception $exception) {
+            $output->writeln($exception->getMessage().$exception->getTrace());
         }
     }
 
+    /**
+     * factory method
+     *
+     * @param InputInterface $input
+     * @return Pinger
+     * @throws \Exception
+     */
     private function createPinger(InputInterface $input): Pinger
     {
-        $repo = new SimpleDemoRepo();
-
         $logFile = $input->getOption('logfile');
         $logger = $logger = new Logger('ping');
         $logger->pushHandler(new StreamHandler($logFile, Logger::INFO));
 
-        return new Pinger($repo, $logger);
+        $pinger = new Pinger(new PingerCreationRequest(
+            $logger,
+            $this->repository,
+            $input->getOption('timeout'),
+            $input->getOption('count'),
+            $input->getOption('attempts')
+        ));
+
+        return $pinger;
     }
 }
