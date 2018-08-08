@@ -7,7 +7,7 @@ use GlebecV\RepositoryInterface;
 
 class SimpleDemoRepo implements RepositoryInterface
 {
-    public function getIpCollection()
+    public function getIpCollection(): array
     {
         return [
             new StationCollection('10.0.2.40', '24857', 'station-1000-40'),

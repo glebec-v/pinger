@@ -27,6 +27,7 @@ class Pinger
 
     /**
      * ping operation for every station
+     * executes constantly
      */
     public function permanentExecutePings()
     {
@@ -51,7 +52,7 @@ class Pinger
     }
 
     /**
-     * common ping operation
+     * common ping operation, executes once
      */
     public function executePings()
     {
