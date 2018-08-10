@@ -7,9 +7,9 @@ use GlebecV\UpStationRepository;
 
 class Factory
 {
-    public static function fromDb(array $connectionInfo): UpStationRepository
+    public static function fromDb(array $connectionInfo = []): UpStationRepository
     {
-        // todo
+        return new NmsDbRepository();
     }
 
     /**

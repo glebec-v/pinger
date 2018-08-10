@@ -77,6 +77,11 @@ class UhpHubPinger
             ];
         } else {
             throw new HubTelnetConnectException('Connection lost', 1);
+            //$a = 1;
+            //return [
+            //    'ok'   => false,
+            //    'info' => '',
+            //];
         }
     }
 }
