@@ -81,6 +81,8 @@ class Pinger
         while (true) {
             $collection = $this->ipRepository->getIpCollection();
             $countUp = $totalStations = count($collection);
+            $countSuccess = 0;
+
             try {
                 foreach ($collection as $counter => $item) {
                     /** @var StationCollection $item */
@@ -93,15 +95,19 @@ class Pinger
                     $result = $this->hubPinger->ping($item, $this->count, $this->timeout*1000, $this->attempts);
                     if ($result['ok']) {
                         $this->logger->info((string)$counter, ['target' => $item->toArray(), 'result' => $result['res'], 'attempts' => $result['attempts']]);
+                        $countSuccess++;
                     } else {
                         $this->logger->error((string)$counter, ['target' => $item->toArray(), 'attempts' => $result['attempts']]);
                     }
                 }
-                $this->logger->notice("Ping cycle {$pingCycleCount} finished: {$countUp} stations UP of {$totalStations}");
+
+                $this->logger->notice("Ping cycle {$pingCycleCount} finished: {$countSuccess} responded of {$countUp} stations UP of {$totalStations} total filtered");
+
             } catch (\Exception $exception) {
-                $this->logger->critical('Pinger interrupted by telnet session... Unable to continue');
+                $this->logger->critical('Pinger interrupted by telnet session... Unable to continue', ['pinger-message' => $exception->getMessage()]);
                 break;
             }
+
             $pingCycleCount++;
         }
     }

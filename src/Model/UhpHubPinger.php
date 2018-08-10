@@ -67,13 +67,16 @@ class UhpHubPinger
 
     private function parseResponse(string $data)
     {
-        // todo implement
         $arr = explode("\r\n", $data);
-        $a = 1;
-
-        return [
-            'ok' => true,
-            'info' => '',
-        ];
+        if (2 < count($arr) && isset($arr[count($arr)-2])) {
+            $transmitted = (int)explode(';', $arr[count($arr)-2])[0];
+            $lost = (int)explode(';', $arr[count($arr)-2])[1];
+            return [
+                'ok'   => ($transmitted - $lost) !== 0,
+                'info' => $arr[count($arr)-1],
+            ];
+        } else {
+            throw new HubTelnetConnectException('Connection lost', 1);
+        }
     }
 }
