@@ -4,7 +4,7 @@
 include __DIR__.'/vendor/autoload.php';
 
 try {
-    $app = new \Symfony\Component\Console\Application("uhp.net ping tool v1.1.0");
+    $app = new \Symfony\Component\Console\Application("uhp.net ping tool v1.2.0");
     $app->add(new \GlebecV\Command\PingCommand(
             \GlebecV\Repository\Factory::fromArray()
     ));

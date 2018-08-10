@@ -3,6 +3,7 @@
 namespace GlebecV\Command;
 
 use GlebecV\DTO\PingerCreationRequest;
+use GlebecV\Model\UhpHubPinger;
 use GlebecV\Model\Pinger;
 use GlebecV\RepositoryInterface;
 
@@ -37,19 +38,19 @@ class PingCommand extends Command
                 .PHP_EOL
                 .'with default parameters that can be changed by user')
             ->addOption(
+                'hub',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Ping executes via telnet with stations hub, ip-address',
+                false
+            )
+            ->addOption(
                 'timeout',
                 't',
                 InputOption::VALUE_REQUIRED,
                 'Time to wait for a response, in seconds. The option affects only timeout in absence of  any  responses,  otherwise
               ping waits for two RTTs',
                 2
-            )
-            ->addOption(
-                'count',
-                'c',
-                InputOption::VALUE_REQUIRED,
-                'Stop after sending count ECHO_REQUEST packets',
-                1
             )
             ->addOption(
                 'attempts',
@@ -66,10 +67,10 @@ class PingCommand extends Command
                 'ping.log'
             )
             ->addOption(
-                'permanent',
+                'once',
                 null,
                 InputOption::VALUE_NONE,
-                'permanent executing pings with provided set of ip-addresses, to stop use ctrl-C'
+                'By default pings runs permanently with provided set of ip-addresses, to stop use ctrl-C, once run only one cycle for set'
             );
     }
 
@@ -77,15 +78,15 @@ class PingCommand extends Command
     {
         try {
             $pinger = $this->createPinger($input);
-            $permanent = $input->getOption('permanent');
+            $once = $input->getOption('once');
 
-            if ($permanent) {
-                $pinger->permanentExecutePings();
-            } else {
+            if ($once) {
                 $pinger->executePingsOnce();
+            } else {
+                $pinger->permanentExecutePings();
             }
         } catch (\Exception $exception) {
-            $output->writeln($exception->getMessage().$exception->getTrace());
+            $output->writeln($exception->getMessage().$exception->getTraceAsString());
         }
     }
 
@@ -102,13 +103,21 @@ class PingCommand extends Command
         $logger = $logger = new Logger('ping');
         $logger->pushHandler(new StreamHandler($logFile, Logger::INFO));
 
-        $pinger = new Pinger(new PingerCreationRequest(
+        $creationRequest = new PingerCreationRequest(
             $logger,
             $this->repository,
             $input->getOption('timeout'),
-            $input->getOption('count'),
+            1,
             $input->getOption('attempts')
-        ));
+        );
+
+        $hub = $input->getOption('hub');
+        if ($hub) {
+            $hubPinger = new UhpHubPinger($hub);
+            $pinger = new Pinger($creationRequest, $hubPinger);
+        } else {
+            $pinger = new Pinger($creationRequest);
+        }
 
         return $pinger;
     }

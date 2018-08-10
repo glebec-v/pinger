@@ -39,10 +39,11 @@ SELECT
   Remote.serial_num AS serial,
   Remote.name       AS name,
   Route.addr        AS ip,
+  HubVlan.number    AS vlan,
   ((Remote.rx_only = 0) && ((RemoteState.faults&0x8000 <> 0) || (RemoteState.core_state > 0)))
-  ||
+    ||
   ((Remote.rx_only = 1) && (RemoteState.core_state = 6))
-                                as down,
+                    as down,
   RemoteState.faults&0xFFFF <> 0 as config,
   RemoteState.core_state,
   RemoteState.updated,
@@ -50,18 +51,19 @@ SELECT
   Remote.rx_only,
   Remote.enabled
 FROM Remote
-LEFT JOIN Route ON Remote.id = Route.remote_id
-LEFT OUTER JOIN RemoteState ON Remote.id = RemoteState.remote_id
+  LEFT JOIN Route ON Remote.id = Route.remote_id
+  LEFT JOIN HubVlan ON Route.hub_vlan = HubVlan.id
+  LEFT OUTER JOIN RemoteState ON Remote.id = RemoteState.remote_id
 WHERE
-    Remote.enabled = 1
-AND Route.type = 3
-AND
+      Remote.enabled = 1
+  AND Route.type = 3
+  AND
     CONVERT(
       SUBSTRING(
         Route.data FROM INSTR(Route.data, '"private":"')
                           + LENGTH('"private":"') FOR LOCATE('"', Route.data, INSTR(Route.data, '"private":"') + LENGTH('"private":"'))
-                          - INSTR(Route.data, '"private":"')
-                          - LENGTH('"private":"')
+                                                        - INSTR(Route.data, '"private":"')
+                                                        - LENGTH('"private":"')
           )
       , UNSIGNED INTEGER) = 0;
 IP_ADDRESSES;
@@ -81,7 +83,8 @@ IP_ADDRESSES;
             $ret[] = new StationCollection(
                 $item['ip'],
                 $item['serial'],
-                $item['name']
+                $item['name'],
+                (int)$item['vlan']
             );
         }
 

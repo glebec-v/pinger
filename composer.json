@@ -16,6 +16,7 @@
   "require": {
     "monolog/monolog": "^1.23",
     "doctrine/dbal": "^2.8",
-    "symfony/console": "^4.1"
+    "symfony/console": "^4.1",
+    "bestnetwork/telnet": "^1.0"
   }
 }
